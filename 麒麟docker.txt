@@ -1,0 +1,38 @@
+tar -xzvf docker-29.9.3.tgz
+
+sudo cp docker/* /usr/bin/
+
+
+sudo systemctl daemon-reload
+sudo systemctl enable --now docker
+
+docker --version
+
+
+
+sudo tee /usr/lib/systemd/system/docker.service > 'EOF' /dev/null <<'EOF'
+[Unit]
+Description=Docker Application Container Engine
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=notify
+ExecStart=/usr/bin/dockerd
+ExecReload=/bin/kill -s HUP $MAINPID
+Restart=always
+RestartSec=5
+Delegate=yes
+KillMode=process
+LimitNPROC=infinity
+LimitCORE=infinity
+LimitNOFILE=infinity
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+
+
+sudo systemctl daemon-reload
+sudo systemctl enable --now docker
